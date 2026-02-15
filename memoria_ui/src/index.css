@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-creme: #f7f6f2;
+  --color-panel: #fdfdfb;
+  --color-forest: #2d4635;
+  --color-sienna: #a0522d;
+  --color-text-main: #3c3c3c;
+  --color-text-muted: #8c8c8c;
+  --color-border: #e8e6e1;
+  --color-node-fill: #ece9e2;
+
+  --color-landing-bg: #1a1510;
+  --color-landing-bg-light: #2a2118;
+  --color-landing-text: #f7f6f2;
+  --color-landing-muted: #9a948a;
+  --color-landing-accent: #c4915a;
+
+  --font-serif: "Instrument Serif", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --ease-smooth: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-serif);
+    background-color: var(--color-landing-bg);
+    color: var(--color-text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  #root {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-forest);
+    color: white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d1cfc9;
+    border-radius: 10px;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 200, "GRAD" 0, "opsz" 24;
+    font-size: 20px;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes orbit {
+    from {
+      transform: rotate(0deg) translateX(70px) rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg) translateX(70px) rotate(-360deg);
+    }
+  }
+
+  @keyframes flow {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -100;
+    }
+  }
+}

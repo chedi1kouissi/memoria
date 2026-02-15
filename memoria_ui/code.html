@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cognitive OS Memory Graph Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Inter:wght@300;400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --bg-base: #f7f6f2;--bg-card: #ffffff;
+            --accent-forest: #2d4635;--accent-sienna: #a0522d;
+            --text-main: #3c3c3c;
+            --text-muted: #8c8c8c;
+            --border-color: #e8e6e1;
+            --node-fill: #ece9e2;
+        }
+        body {
+            font-family: 'Instrument Serif', serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+        .serif { font-family: 'Instrument Serif', serif; }
+        .sans { font-family: 'Inter', sans-serif; }
+        .graph-line {
+            stroke: var(--accent-forest);
+            stroke-dasharray: 4 4;
+            opacity: 0.15;
+        }
+        .node-circle {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .node-circle:hover {
+            border-color: var(--accent-forest);
+            transform: translateY(-2px);
+        }
+        .glass-context {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--border-color);
+        }
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1cfc9;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: "#2d4635",
+                        sienna: "#a0522d",
+                        creme: "#f7f6f2",
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="h-screen overflow-hidden flex selection:bg-forest selection:text-white">
+<nav class="w-16 lg:w-20 flex flex-col items-center py-8 border-r border-[#e8e6e1] bg-white/50 z-50">
+<div class="mb-12">
+<div class="w-10 h-10 rounded-full border border-forest/20 flex items-center justify-center text-forest">
+<span class="material-symbols-outlined">bubble_chart</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-8">
+<button class="text-text-muted hover:text-forest transition-colors duration-300" title="Dashboard">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="text-forest transition-colors duration-300 relative" title="Memory Graph">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_tree</span>
+<div class="absolute -right-4 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-forest"></div>
+</button>
+<button class="text-text-muted hover:text-forest transition-colors duration-300" title="Actions">
+<span class="material-symbols-outlined">auto_awesome</span>
+</button>
+<button class="text-text-muted hover:text-forest transition-colors duration-300" title="Ask Memory">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</div>
+<div class="mt-auto">
+<img alt="User profile photo" class="w-8 h-8 rounded-full grayscale hover:grayscale-0 transition-all duration-500 border border-border-color cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA31grkaguxA70T2sAi2Hm2FuGHD9gjBP1aVzGBtnM17dLs_pq-xdZhzAkwuh5ept-LA522yUWg-WV7vycKnMdbirqr8TRMdAVqKwMsGh4I3VeV1_-vsHVLUczkuj6KR8phSSvBj2O20fFW2np4ivo4xs3ZbcBVmaT-jONq03L6LcVcZFTR5f6KDkeykogJeVbWknMCMSm2GDGjkziedCC7M4py95lc2fxLMuNSw_6tNHqRTs1DnzWEJEPf0eFdKMInpvYp7kHffDE"/>
+</div>
+</nav>
+<main class="flex-1 relative bg-[#fdfdfb] overflow-hidden">
+<div class="absolute inset-0 pointer-events-none opacity-[0.03]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAHxjfkQGLZQJMwRtrI24_faC6Bi_Bg-5BAAlACLmLX1tRxiDqJRjN5AEkyZ7JhycFwzY-A_XIYwg_WJ9fEbz8ha5HepitS_z0FleGD_Hk-T3opPDEMzMCHbhByP4vGfmZu2RFX8AH37mxj3uYYBSZ0C22267aJ-xM4mafvZCL-p65OIFrAjVP3IgKVwCHv6e4bzqnjohvnTaY3ZnxOHzlc8MYeYTCIG203UaYRJrW_MSToMqQ03lqWpPs2zOOxVi08SOuNkDeg43U');"></div>
+<header class="absolute top-10 left-10 z-20 max-w-xs">
+<h1 class="text-4xl text-forest tracking-tight leading-none italic">Neural Map</h1>
+<p class="text-sm sans font-light tracking-[0.1em] text-text-muted uppercase mt-2">Real-time cognitive topology</p>
+</header>
+<div class="absolute top-10 right-10 z-20 flex items-center gap-4">
+<div class="relative group">
+<input class="bg-transparent border-b border-border-color focus:border-forest outline-none px-2 py-1 text-sm sans font-light w-48 transition-all duration-500 focus:w-64 placeholder:text-text-muted/50" placeholder="Search consciousness..." type="text"/>
+<span class="material-symbols-outlined absolute right-0 bottom-1 text-text-muted text-sm scale-75">search</span>
+</div>
+</div>
+<div class="w-full h-full relative flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full pointer-events-none">
+<line class="graph-line" x1="50%" x2="35%" y1="50%" y2="35%"></line>
+<line class="graph-line" x1="50%" x2="65%" y1="50%" y2="30%"></line>
+<line class="graph-line" x1="50%" x2="70%" y1="50%" y2="65%"></line>
+<line class="graph-line" x1="50%" x2="30%" y1="50%" y2="65%"></line>
+</svg>
+<div class="relative z-10 group cursor-pointer">
+<div class="w-32 h-32 rounded-full border border-forest/30 flex items-center justify-center bg-white shadow-sm transition-all duration-700 group-hover:shadow-xl group-hover:border-forest/50">
+<div class="w-24 h-24 rounded-full border border-forest/10 flex items-center justify-center text-xl tracking-[0.2em] font-light text-forest">
+                    YOU
+                </div>
+</div>
+</div>
+<div class="absolute top-[35%] left-[35%] -translate-x-1/2 -translate-y-1/2 group">
+<div class="node-circle w-20 h-20 rounded-full flex flex-col items-center justify-center cursor-pointer p-4 text-center">
+<span class="material-symbols-outlined text-forest opacity-60 mb-1">rocket_launch</span>
+<span class="sans text-[10px] tracking-tighter text-text-muted group-hover:text-forest">Q4 GOALS</span>
+</div>
+<div class="absolute -top-6 -left-6 w-8 h-8 rounded-full border border-border-color bg-white flex items-center justify-center text-[9px] sans text-text-muted hover:border-forest transition-colors">KPI</div>
+</div>
+<div class="absolute top-[30%] left-[65%] -translate-x-1/2 -translate-y-1/2 group">
+<div class="node-circle w-24 h-24 rounded-full flex flex-col items-center justify-center cursor-pointer p-4 text-center">
+<span class="material-symbols-outlined text-forest opacity-60 mb-1">school</span>
+<span class="sans text-[10px] tracking-tighter text-text-muted group-hover:text-forest uppercase">Learning</span>
+</div>
+<div class="absolute top-0 -right-8 w-10 h-10 rounded-full border border-border-color bg-white flex items-center justify-center text-[9px] sans text-text-muted hover:border-forest transition-colors">AI</div>
+</div>
+<div class="absolute top-[65%] left-[70%] -translate-x-1/2 -translate-y-1/2 group">
+<div class="node-circle w-16 h-16 rounded-full flex flex-col items-center justify-center cursor-pointer p-4 text-center">
+<span class="material-symbols-outlined text-forest opacity-60 mb-1">account_balance</span>
+<span class="sans text-[10px] tracking-tighter text-text-muted group-hover:text-forest uppercase">Finance</span>
+</div>
+</div>
+<div class="absolute top-[65%] left-[30%] -translate-x-1/2 -translate-y-1/2 group">
+<div class="node-circle w-20 h-20 rounded-full flex flex-col items-center justify-center cursor-pointer p-4 text-center">
+<span class="material-symbols-outlined text-forest opacity-60 mb-1">groups</span>
+<span class="sans text-[10px] tracking-tighter text-text-muted group-hover:text-forest uppercase leading-tight">Social Network</span>
+</div>
+</div>
+</div>
+<div class="absolute bottom-10 left-10 flex gap-4">
+<div class="flex flex-col gap-2 p-1 bg-white border border-border-color rounded-full">
+<button class="w-8 h-8 rounded-full hover:bg-creme text-text-muted hover:text-forest flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined !text-lg">add</span>
+</button>
+<button class="w-8 h-8 rounded-full hover:bg-creme text-text-muted hover:text-forest flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined !text-lg">remove</span>
+</button>
+</div>
+<button class="w-10 h-10 rounded-full bg-white border border-border-color hover:border-forest text-text-muted hover:text-forest flex items-center justify-center transition-all shadow-sm">
+<span class="material-symbols-outlined">center_focus_strong</span>
+</button>
+</div>
+</main>
+<aside class="w-80 glass-context h-full flex flex-col py-10">
+<div class="px-8 mb-10 flex justify-between items-end">
+<h2 class="text-2xl text-forest italic">Context</h2>
+<span class="material-symbols-outlined text-text-muted cursor-pointer hover:text-forest">blur_on</span>
+</div>
+<div class="flex-1 overflow-y-auto px-8 space-y-12">
+<section>
+<header class="flex justify-between items-center mb-6">
+<h3 class="sans text-[11px] font-light tracking-[0.2em] text-text-muted uppercase">Active Clusters</h3>
+<span class="sans text-[10px] text-forest/60 hover:text-forest cursor-pointer underline underline-offset-4">Browse</span>
+</header>
+<div class="space-y-4">
+<div class="p-5 rounded-sm border border-border-color bg-white/50 hover:bg-white transition-all duration-500 group cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col">
+<span class="sans text-[9px] text-text-muted mb-1 uppercase tracking-tighter">Priority High</span>
+<h4 class="text-lg text-text-main leading-none italic">Project Alpha</h4>
+</div>
+<span class="sans text-[10px] text-forest font-light">82%</span>
+</div>
+<div class="h-[1px] w-full bg-border-color overflow-hidden">
+<div class="h-full bg-forest w-[82%]"></div>
+</div>
+<div class="mt-4 flex -space-x-1 items-center">
+<img alt="Avatar" class="w-5 h-5 rounded-full grayscale border border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvdHwJ4qRqHGZoBHyuFjqrbBnwIyXQ5q2fQQ9m3pdHv73TjOacG2osrFtl7rZ9PACoGYiDf1vCH7OBckF_t77Tc-NrlgxYUBOT7EFgB-F5EKJnZv4FWleAWebP_t29-UpaL8AZFHIa0zR8LqCU0QlOMUzE0h8Af-8NSIHYx9yo5sJ3v3wNv42FsMbrFgNs0laORQNYlk0iwEDU9WgKkSdVai2P3oPBCILOFlNJP_YOg55sB9Be2iOc5F9Uz1NMJ_h0SX3Nk27YkJQ"/>
+<img alt="Avatar" class="w-5 h-5 rounded-full grayscale border border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARuIHLodjzT2cdl02WJhXFH1ZMj1VfKdTHjJa0Jhl9hmzGKvpAebBJLFUzAB-o8Bl3fasGsrJorCS4yXKDicUQlNZgo12XNpQKz_xRkWy86CtoVP5pN9KpiQvlMGYo3iqIrlmotcNPY8TZE0216spVGmod5sMvX1DOlmGbvO6PE54yNeRXNSHJ8nlCk1jiN3u6_d4CZ-biAKGoJXNg24Z68yQW8eqimBpqQqKfCRukslUb3zFGhE6eeiRCtZVmhHegITPZrbYWrYY"/>
+<span class="sans text-[9px] text-text-muted ml-3">2h ago</span>
+</div>
+</div>
+<div class="p-5 rounded-sm border border-border-color bg-transparent hover:bg-white transition-all duration-500 cursor-pointer">
+<div class="flex justify-between items-center">
+<h4 class="text-lg text-text-main leading-none italic">Machine Learning</h4>
+<span class="sans text-[10px] text-text-muted">45%</span>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h3 class="sans text-[11px] font-light tracking-[0.2em] text-text-muted uppercase mb-8">Recent Ingest</h3>
+<div class="relative space-y-8 before:absolute before:left-0 before:top-1 before:bottom-1 before:w-[1px] before:bg-border-color">
+<div class="pl-6 relative">
+<div class="absolute left-[-2px] top-1.5 w-1 h-1 rounded-full bg-forest"></div>
+<span class="sans text-[9px] text-text-muted uppercase mb-1 block tracking-widest">10:42 AM</span>
+<p class="text-base text-text-main leading-tight italic">Meeting Notes: Q4 Strategy</p>
+<div class="flex gap-2 mt-2">
+<span class="sans text-[8px] px-1.5 py-0.5 border border-border-color text-text-muted rounded-full">DOCUMENT</span>
+</div>
+</div>
+<div class="pl-6 relative">
+<div class="absolute left-[-2px] top-1.5 w-1 h-1 rounded-full bg-border-color"></div>
+<span class="sans text-[9px] text-text-muted uppercase mb-1 block tracking-widest">09:15 AM</span>
+<p class="text-base text-text-main leading-tight italic mb-3">Screenshot captured</p>
+<div class="rounded-sm overflow-hidden border border-border-color h-24 w-full grayscale hover:grayscale-0 transition-all duration-700">
+<img alt="Data chart screenshot" class="object-cover w-full h-full opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYU0Ur3e9zy879eZ_bR7nfUZjJG13LJrLrRSOlrLSiHljp49R1hp8JbL0zlqYAZBRth5sYhBzMfBv8T1YPBGAMPwQmGPaZT7V_rzOfBllB0lAHiqpFtMxgFjsSWmHm_KiSqE3XivsVsvtm02QOaudkQLe9-0zGzyCoUmPj7iNUnNGGg_ruwhwAP37MaGKzQAUhKhfN_i9ZLqccjP7qiMTvOh_PGvpcXzX0aG3DVdfS1XzhiVnx5IxepWGggQzbjoiwF9-WV6yOuto"/>
+</div>
+</div>
+<div class="pl-6 relative">
+<div class="absolute left-[-2px] top-1.5 w-1 h-1 rounded-full bg-border-color"></div>
+<span class="sans text-[9px] text-text-muted uppercase mb-1 block tracking-widest">Yesterday</span>
+<p class="text-base text-text-main leading-tight italic">Email from Sarah J.</p>
+</div>
+</div>
+</section>
+</div>
+<div class="px-8 mt-10">
+<button class="w-full py-4 border border-forest text-forest hover:bg-forest hover:text-white transition-all duration-500 text-lg italic tracking-wide group flex items-center justify-center gap-2">
+<span class="material-symbols-outlined !text-sm">add</span>
+            Add Memory Manually
+        </button>
+</div>
+</aside>
+
+</body></html>
